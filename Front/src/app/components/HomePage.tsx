@@ -258,48 +258,7 @@ export function HomePage({ onNavigate }: { onNavigate: (p: string) => void }) {
         </div>
       </section>
 
-      {/* CTA */}
-      <motion.section
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.7 }}
-        className="py-20 px-5 md:px-6 text-center"
-        style={{ borderTop: `1px solid ${colors.border}` }}
-      >
-        <div
-          className="max-w-2xl mx-auto py-14 px-6 md:px-12 rounded-3xl relative overflow-hidden"
-          style={{
-            background: isDark
-              ? "linear-gradient(135deg, rgba(124,58,237,0.12), rgba(59,130,246,0.07))"
-              : "linear-gradient(135deg, rgba(124,58,237,0.07), rgba(59,130,246,0.04))",
-            border: "1px solid rgba(124,58,237,0.2)",
-          }}
-        >
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(124,58,237,0.2) 0%, transparent 60%)" }}
-          />
-          <h2 className="text-2xl md:text-3xl font-bold mb-3 relative" style={{ color: colors.text }}>
-            O'z loyihangizni boshlashga tayyormisiz?
-          </h2>
-          <p className="text-sm mb-8 max-w-md mx-auto relative" style={{ color: colors.textMuted }}>
-            Darslaridagi kod manbalarni oling va ularni o'zingizning shaxsiy yoki tijoriy loyihalaringiz uchun moslabdiring.
-          </p>
-          <motion.button
-            whileHover={{ scale: 1.05, boxShadow: "0 8px 30px rgba(124,58,237,0.5)" }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => onNavigate("manbalar")}
-            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-white text-sm font-semibold relative"
-            style={{
-              background: "linear-gradient(135deg, #7c3aed, #5b21b6)",
-              boxShadow: "0 4px 20px rgba(124,58,237,0.35)",
-            }}
-          >
-            Kod manbalariga o'tish →
-          </motion.button>
-        </div>
-      </motion.section>
+
     </div>
   );
 }

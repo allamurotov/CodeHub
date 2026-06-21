@@ -28,7 +28,7 @@ export const authService = {
       select: { id: true, name: true, email: true, role: true, createdAt: true },
     });
 
-    const tokens = generateTokens({ userId: user.id, email: user.email, role: user.role });
+    const tokens = generateTokens({ userId: user.id, email: user.email!, role: user.role });
 
     await prisma.session.create({
       data: {
@@ -44,11 +44,61 @@ export const authService = {
   async login(input: LoginInput) {
     const user = await prisma.user.findUnique({ where: { email: input.email } });
     if (!user) throw new UnauthorizedError("Invalid email or password");
+    if (!user.password) throw new UnauthorizedError("This account uses OAuth login");
 
     const valid = await bcrypt.compare(input.password, user.password);
     if (!valid) throw new UnauthorizedError("Invalid email or password");
 
-    const tokens = generateTokens({ userId: user.id, email: user.email, role: user.role });
+    const tokens = generateTokens({ userId: user.id, email: user.email!, role: user.role });
+
+    await prisma.session.create({
+      data: {
+        userId: user.id,
+        token: tokens.refreshToken,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+
+    const { password: _, ...userWithoutPassword } = user;
+    return { user: userWithoutPassword, ...tokens };
+  },
+
+  async oauthLogin(profile: { provider: string; providerId: string; name: string; email?: string; avatar?: string }) {
+    let user = profile.email
+      ? await prisma.user.findUnique({ where: { email: profile.email } })
+      : null;
+
+    if (!user) {
+      user = await prisma.user.findFirst({
+        where: { provider: profile.provider, providerId: profile.providerId },
+      });
+    }
+
+    if (user) {
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          provider: profile.provider,
+          providerId: profile.providerId,
+          avatar: profile.avatar || user.avatar,
+          name: profile.name || user.name,
+          email: profile.email || user.email,
+        },
+      });
+    } else {
+      const dummyEmail = profile.email || `${profile.providerId}@${profile.provider}.oauth`;
+      user = await prisma.user.create({
+        data: {
+          name: profile.name || "User",
+          email: dummyEmail,
+          provider: profile.provider,
+          providerId: profile.providerId,
+          avatar: profile.avatar,
+        },
+      });
+    }
+
+    const tokens = generateTokens({ userId: user.id, email: user.email!, role: user.role });
 
     await prisma.session.create({
       data: {
@@ -74,7 +124,7 @@ export const authService = {
       const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
       if (!user) throw new UnauthorizedError("User not found");
 
-      const tokens = generateTokens({ userId: user.id, email: user.email, role: user.role });
+      const tokens = generateTokens({ userId: user.id, email: user.email!, role: user.role });
 
       await prisma.session.delete({ where: { id: session.id } });
       await prisma.session.create({

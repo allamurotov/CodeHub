@@ -4,9 +4,9 @@ import { authenticate } from "../middleware/auth";
 
 const router = Router();
 
-router.get("/", authenticate, userController.getAll);
-router.get("/:id", authenticate, userController.getById);
-router.patch("/me", authenticate, userController.update);
-router.delete("/me", authenticate, userController.delete);
+router.get("/", authenticate, userController.getAll as any);
+router.get("/:id", authenticate, userController.getById as any);
+router.patch("/me", authenticate, userController.update as any);
+router.delete("/me", authenticate, userController.delete as any);
 
 export default router;

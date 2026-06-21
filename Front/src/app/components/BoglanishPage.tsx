@@ -1,12 +1,7 @@
-import { Send, MapPin, Github, Phone, Instagram, Layers, ArrowUpRight } from "lucide-react";
+import { Github, Layers, ExternalLink } from "lucide-react";
 import { motion } from "motion/react";
 import { useTheme } from "../context/ThemeContext";
 import sardorImage from "@/imports/image.jpg";
-
-const socialLinks = [
-  { Icon: Github, href: "https://github.com/allamurotov", label: "GitHub" },
-  { Icon: Instagram, href: "https://instagram.com/sardor_devx", label: "Instagram" },
-];
 
 const techStack = ["React", "Next.js", "Node.js", "TypeScript", "TailwindCSS", "PostgresQL", "Docker"];
 
@@ -76,7 +71,7 @@ export function BoglanishPage() {
             </motion.p>
 
             <motion.a
-              href="https://t.me/sardor_devx"
+              href="https://github.com/allamurotov"
               target="_blank"
               rel="noopener noreferrer"
               initial={{ opacity: 0, y: 15 }}
@@ -90,8 +85,8 @@ export function BoglanishPage() {
                 boxShadow: "0 0 24px rgba(124,58,237,0.35)",
               }}
             >
-              <Send size={15} />
-              Telegram orqali yozish
+              <Github size={15} />
+              GitHub da kuzatish
             </motion.a>
           </div>
 
@@ -184,13 +179,13 @@ export function BoglanishPage() {
               </div>
             </motion.div>
 
-            {/* Contact & social */}
+            {/* GitHub */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.35 }}
               whileHover={{ y: -4 }}
-              className="rounded-3xl p-7 md:p-8 flex flex-col"
+              className="rounded-3xl p-7 md:p-8 flex flex-col items-center justify-center text-center"
               style={{
                 background: colors.surface,
                 border: `1px solid ${colors.border}`,
@@ -210,79 +205,32 @@ export function BoglanishPage() {
                   : "0 8px 32px rgba(0,0,0,0.06)";
               }}
             >
-              <h2 className="text-lg font-bold mb-6" style={{ color: colors.text }}>Aloqa ma'lumotlari</h2>
-
-              <div className="flex-1 flex flex-col justify-center gap-5">
-                {/* Phone */}
-                <motion.div
-                  whileHover={{ x: 4 }}
-                  className="flex items-center gap-4 p-3.5 rounded-2xl"
-                  style={{
-                    background: isDark ? "rgba(52,211,153,0.05)" : "rgba(52,211,153,0.04)",
-                    border: "1px solid rgba(52,211,153,0.15)",
-                  }}
-                >
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(52,211,153,0.1)" }}>
-                    <Phone size={17} style={{ color: "#34d399" }} />
-                  </div>
-                  <div>
-                    <p className="text-[11px] mb-0.5" style={{ color: colors.textMuted }}>Telefon</p>
-                    <p className="text-sm font-bold" style={{ color: "#34d399" }}>+998 77 737 74 56</p>
-                  </div>
-                  <motion.a
-                    href="tel:+998777377456"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="ml-auto w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ background: "rgba(52,211,153,0.12)", color: "#34d399" }}
-                  >
-                    <Phone size={13} />
-                  </motion.a>
-                </motion.div>
-
-                {/* Manzil */}
-                <motion.div
-                  whileHover={{ x: 4 }}
-                  className="flex items-center gap-4 p-3.5 rounded-2xl"
-                  style={{
-                    background: isDark ? "rgba(124,58,237,0.05)" : "rgba(124,58,237,0.04)",
-                    border: "1px solid rgba(124,58,237,0.15)",
-                  }}
-                >
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(124,58,237,0.1)" }}>
-                    <MapPin size={17} style={{ color: "#a78bfa" }} />
-                  </div>
-                  <div>
-                    <p className="text-[11px] mb-0.5" style={{ color: colors.textMuted }}>Manzil</p>
-                    <p className="text-sm font-semibold" style={{ color: "#a78bfa" }}>Toshkent, O'zbekiston</p>
-                  </div>
-                  <div className="ml-auto w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(124,58,237,0.1)", color: "#a78bfa" }}>
-                    <ArrowUpRight size={13} />
-                  </div>
-                </motion.div>
+              <div
+                className="w-16 h-16 rounded-full flex items-center justify-center mb-5"
+                style={{ background: "rgba(124,58,237,0.1)" }}
+              >
+                <Github size={28} style={{ color: "#a78bfa" }} />
               </div>
-
-              <div className="pt-5 mt-5" style={{ borderTop: `1px solid ${colors.border}` }}>
-                <div className="flex items-center gap-3 justify-between">
-                  <span className="text-xs font-medium" style={{ color: colors.textSubtle }}>IJTIMOIY TARMOQLAR</span>
-                  <div className="flex items-center gap-2">
-                    {socialLinks.map(({ Icon, href, label }) => (
-                      <motion.a
-                        key={label}
-                        href={href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        whileHover={{ scale: 1.12, y: -4 }}
-                        whileTap={{ scale: 0.9 }}
-                        className="w-10 h-10 rounded-xl flex items-center justify-center"
-                        style={{ background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textMuted }}
-                      >
-                        <Icon size={16} />
-                      </motion.a>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <h2 className="text-lg font-bold mb-2" style={{ color: colors.text }}>GitHub</h2>
+              <p className="text-sm mb-6 max-w-xs" style={{ color: colors.textMuted }}>
+                Loyihalar va ochiq kodlar bilan tanishish uchun GitHub profilimga tashrif buyuring.
+              </p>
+              <motion.a
+                href="https://github.com/allamurotov"
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(124,58,237,0.5)" }}
+                whileTap={{ scale: 0.97 }}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-white"
+                style={{
+                  background: "linear-gradient(135deg, #5b21b6, #7c3aed)",
+                  boxShadow: "0 0 20px rgba(124,58,237,0.3)",
+                }}
+              >
+                <Github size={15} />
+                Profilni ko'rish
+                <ExternalLink size={13} />
+              </motion.a>
             </motion.div>
           </div>
         </div>

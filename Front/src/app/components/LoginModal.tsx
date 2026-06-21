@@ -11,39 +11,56 @@ interface LoginModalProps {
 
 export function LoginModal({ onClose }: LoginModalProps) {
   const { colors, isDark } = useTheme();
-  const { login } = useAuth();
+  const { login, register } = useAuth();
+  const [mode, setMode] = useState<"login" | "register">("login");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [step, setStep] = useState<"email" | "password">("email");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleContinue = () => {
+  const handleSubmit = async () => {
     if (step === "email") {
       if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        toast("Email manzilni to'g'ri kiriting", {
-          style: { background: "#2e0f0f", border: "1px solid rgba(248,113,113,0.3)", color: "#fca5a5", borderRadius: "12px", padding: "12px 24px", fontSize: "14px", fontWeight: 600, boxShadow: "0 8px 32px rgba(0,0,0,0.4)" },
-        });
+        toast("Email manzilni to'g'ri kiriting", toastError);
         return;
       }
       setStep("password");
-    } else if (step === "password") {
-      if (password.length < 6) {
-        toast("Parol kamida 6 belgidan iborat bo'lishi kerak", {
-          style: { background: "#2e0f0f", border: "1px solid rgba(248,113,113,0.3)", color: "#fca5a5", borderRadius: "12px", padding: "12px 24px", fontSize: "14px", fontWeight: 600, boxShadow: "0 8px 32px rgba(0,0,0,0.4)" },
-        });
-        return;
+      return;
+    }
+
+    if (password.length < 6) {
+      toast("Parol kamida 6 belgidan iborat bo'lishi kerak", toastError);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      if (mode === "login") {
+        await login(email, password);
+        toast("Muvaffaqiyatli kirdingiz", toastSuccess);
+      } else {
+        if (!name.trim() || name.trim().length < 2) {
+          toast("Ismingizni kiriting (kamida 2 belgi)", toastError);
+          setLoading(false);
+          return;
+        }
+        await register(name.trim(), email, password);
+        toast("Ro'yxatdan muvaffaqiyatli o'tdingiz", toastSuccess);
       }
-      login({ name: "Sardor allamurotov", email, avatar: "S" });
-      toast("Muvaffaqiyatli qo'shildi", {
-        style: { background: "#0f2e1a", border: "1px solid rgba(52,211,153,0.3)", color: "#34d399", borderRadius: "12px", padding: "12px 24px", fontSize: "14px", fontWeight: 600, boxShadow: "0 8px 32px rgba(0,0,0,0.4)" },
-      });
       onClose();
+    } catch (err: any) {
+      toast(err?.message || "Xatolik yuz berdi", toastError);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleOAuth = (provider: string) => {
+    const base = window.location.origin;
     const oauthUrls: Record<string, string> = {
-      GitHub: `https://github.com/login/oauth/authorize?client_id=GITHUB_CLIENT_ID&redirect_uri=${encodeURIComponent(window.location.origin + "/auth/github/callback")}&scope=user:email`,
-      Google: `https://accounts.google.com/o/oauth2/auth?client_id=GOOGLE_CLIENT_ID&redirect_uri=${encodeURIComponent(window.location.origin + "/auth/google/callback")}&scope=email+profile&response_type=code`,
+      GitHub: `${base}/api/v1/auth/github`,
+      Google: `${base}/api/v1/auth/google`,
     };
     const url = oauthUrls[provider];
     if (url) {
@@ -51,6 +68,12 @@ export function LoginModal({ onClose }: LoginModalProps) {
       const left = (screen.width - w) / 2, top = (screen.height - h) / 2;
       window.open(url, `${provider} Auth`, `width=${w},height=${h},top=${top},left=${left},popup=1`);
     }
+  };
+
+  const toggleMode = () => {
+    setMode(mode === "login" ? "register" : "login");
+    setStep("email");
+    setPassword("");
   };
 
   return (
@@ -92,11 +115,14 @@ export function LoginModal({ onClose }: LoginModalProps) {
           transition={{ delay: 0.1 }}
           className="text-center mb-6"
         >
-          <h2 className="text-2xl font-bold mb-1" style={{ color: colors.text }}>Sign in to CodeHub</h2>
-          <p className="text-sm" style={{ color: colors.textMuted }}>Welcome back! Please sign in to continue</p>
+          <h2 className="text-2xl font-bold mb-1" style={{ color: colors.text }}>
+            {mode === "login" ? "Sign in to CodeHub" : "Create an account"}
+          </h2>
+          <p className="text-sm" style={{ color: colors.textMuted }}>
+            {mode === "login" ? "Welcome back! Please sign in to continue" : "Start your learning journey today"}
+          </p>
         </motion.div>
 
-        {/* OAuth buttons */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -131,6 +157,30 @@ export function LoginModal({ onClose }: LoginModalProps) {
           <div className="flex-1 h-px" style={{ background: colors.border }} />
         </div>
 
+        {mode === "register" && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="mb-4"
+          >
+            <label className="block text-sm font-medium mb-2" style={{ color: colors.text }}>Full name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your full name"
+              className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+              style={{
+                background: isDark ? "#1a1a1f" : colors.surface2,
+                border: `1px solid ${colors.border}`,
+                color: colors.text,
+              }}
+              onFocus={(e) => (e.target.style.borderColor = "rgba(124,58,237,0.6)")}
+              onBlur={(e) => (e.target.style.borderColor = colors.border)}
+            />
+          </motion.div>
+        )}
+
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2" style={{ color: colors.text }}>Email address</label>
           <input
@@ -147,7 +197,7 @@ export function LoginModal({ onClose }: LoginModalProps) {
             }}
             onFocus={(e) => (e.target.style.borderColor = "rgba(124,58,237,0.6)")}
             onBlur={(e) => (e.target.style.borderColor = colors.border)}
-            onKeyDown={(e) => e.key === "Enter" && handleContinue()}
+            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
           />
         </div>
 
@@ -172,33 +222,45 @@ export function LoginModal({ onClose }: LoginModalProps) {
               }}
               onFocus={(e) => (e.target.style.borderColor = "rgba(124,58,237,0.6)")}
               onBlur={(e) => (e.target.style.borderColor = colors.border)}
-              onKeyDown={(e) => e.key === "Enter" && handleContinue()}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
               autoFocus
             />
           </motion.div>
         )}
 
         <motion.button
-          whileHover={{ scale: 1.02, boxShadow: "0 8px 24px rgba(37,99,235,0.5)" }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handleContinue}
+          whileHover={{ scale: loading ? 1 : 1.02, boxShadow: "0 8px 24px rgba(37,99,235,0.5)" }}
+          whileTap={{ scale: loading ? 1 : 0.98 }}
+          onClick={handleSubmit}
+          disabled={loading}
           className="w-full py-3 rounded-xl text-white text-sm font-semibold flex items-center justify-center gap-2"
           style={{
-            background: "linear-gradient(135deg, #2563eb, #3b82f6)",
+            background: loading ? "linear-gradient(135deg, #64748b, #94a3b8)" : "linear-gradient(135deg, #2563eb, #3b82f6)",
             boxShadow: "0 4px 16px rgba(37,99,235,0.35)",
+            cursor: loading ? "not-allowed" : "pointer",
           }}
         >
-          {step === "email" ? "Continue" : "Sign in"} ▶
+          {loading ? "Loading..." : step === "email" ? "Continue" : mode === "login" ? "Sign in" : "Sign up"} ▶
         </motion.button>
 
         <p className="text-center text-sm mt-4" style={{ color: colors.textMuted }}>
-          Don't have an account?{" "}
-          <button className="text-blue-400 hover:text-blue-300 transition-colors">Sign up</button>
+          {mode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
+          <button onClick={toggleMode} className="text-blue-400 hover:text-blue-300 transition-colors">
+            {mode === "login" ? "Sign up" : "Sign in"}
+          </button>
         </p>
       </motion.div>
     </motion.div>
   );
 }
+
+const toastError = {
+  style: { background: "#2e0f0f", border: "1px solid rgba(248,113,113,0.3)", color: "#fca5a5", borderRadius: "12px", padding: "12px 24px", fontSize: "14px", fontWeight: 600, boxShadow: "0 8px 32px rgba(0,0,0,0.4)" },
+};
+
+const toastSuccess = {
+  style: { background: "#0f2e1a", border: "1px solid rgba(52,211,153,0.3)", color: "#34d399", borderRadius: "12px", padding: "12px 24px", fontSize: "14px", fontWeight: 600, boxShadow: "0 8px 32px rgba(0,0,0,0.4)" },
+};
 
 function GoogleIcon() {
   return (

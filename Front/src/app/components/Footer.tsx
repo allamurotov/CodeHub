@@ -1,16 +1,13 @@
-import { GraduationCap, Github, Send } from "lucide-react";
-import { useState } from "react";
+import { GraduationCap, Github } from "lucide-react";
 import { motion } from "motion/react";
 import { useTheme } from "../context/ThemeContext";
 
 export function Footer({ onNavigate }: { onNavigate: (p: string) => void }) {
   const { colors, isDark } = useTheme();
-  const [email, setEmail] = useState("");
-  const [subscribed, setSubscribed] = useState(false);
 
   return (
     <footer style={{ background: colors.bg, borderTop: `1px solid ${colors.border}` }}>
-      {/* Newsletter */}
+      {/* Yangiliklardan xabardor bo'ling */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -23,43 +20,25 @@ export function Footer({ onNavigate }: { onNavigate: (p: string) => void }) {
           Yangiliklardan xabardor bo'ling ✨
         </h3>
         <p className="text-sm mb-8 max-w-sm mx-auto" style={{ color: colors.textMuted }}>
-          Yangi kurslar, bepul loyihalar va IT sohasidagi so'nggi yangiliklarni pochtangizga qabul qiling.
+          Yangi kurslar, bepul loyihalar va IT sohasidagi so'nggi yangiliklarni kuzatib boring.
         </p>
-        <div className="flex items-center gap-2 max-w-sm mx-auto">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email manzilingiz"
-            className="flex-1 px-4 py-2.5 rounded-xl text-sm outline-none"
-            style={{
-              background: colors.surface,
-              border: `1px solid ${colors.border}`,
-              color: colors.text,
-              transition: "border-color 0.2s",
-            }}
-            onFocus={(e) => (e.target.style.borderColor = "rgba(124,58,237,0.5)")}
-            onBlur={(e) => (e.target.style.borderColor = colors.border)}
-          />
-          <motion.button
-            whileHover={{ scale: 1.05, boxShadow: "0 8px 20px rgba(124,58,237,0.4)" }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => { if (email) { setSubscribed(true); setEmail(""); setTimeout(() => setSubscribed(false), 3000); } }}
-            className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white"
-            style={{
-              background: subscribed
-                ? "linear-gradient(135deg, #059669, #047857)"
-                : "linear-gradient(135deg, #7c3aed, #5b21b6)",
-              boxShadow: "0 4px 12px rgba(124,58,237,0.25)",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {subscribed ? "✓ Obuna!" : "Obuna"}
-          </motion.button>
-        </div>
+        <motion.a
+          href="https://github.com/allamurotov"
+          target="_blank"
+          rel="noopener noreferrer"
+          whileHover={{ scale: 1.06, boxShadow: "0 8px 24px rgba(124,58,237,0.5)" }}
+          whileTap={{ scale: 0.97 }}
+          className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full text-sm font-semibold text-white"
+          style={{
+            background: "linear-gradient(135deg, #5b21b6, #7c3aed)",
+            boxShadow: "0 4px 16px rgba(124,58,237,0.3)",
+          }}
+        >
+          <Github size={17} />
+          GitHub da kuzatish
+        </motion.a>
       </motion.div>
 
-      {/* Main footer */}
       <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -80,27 +59,21 @@ export function Footer({ onNavigate }: { onNavigate: (p: string) => void }) {
             Zamonaviy usulda dasturlashni o'rganing. Real loyihalar, ochiq kodlar va sifatli ta'lim bir joyda mujassam. Kelajakni biz bilan quring.
           </p>
           <div className="flex items-center gap-3">
-            {[
-              { Icon: Github, href: "https://github.com/allamurotov", label: "GitHub" },
-              { Icon: Send, href: "https://t.me/sardor_devx", label: "Telegram" },
-            ].map(({ Icon, href, label }) => (
-              <motion.a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.15, y: -3 }}
-                whileTap={{ scale: 0.9 }}
-                className="w-9 h-9 rounded-full flex items-center justify-center"
-                style={{
-                  background: colors.surface,
-                  border: `1px solid ${colors.border}`,
-                  color: colors.textMuted,
-                }}
-              >
-                <Icon size={16} />
-              </motion.a>
-            ))}
+            <motion.a
+              href="https://github.com/allamurotov"
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ scale: 1.15, y: -3 }}
+              whileTap={{ scale: 0.9 }}
+              className="w-9 h-9 rounded-full flex items-center justify-center"
+              style={{
+                background: colors.surface,
+                border: `1px solid ${colors.border}`,
+                color: colors.textMuted,
+              }}
+            >
+              <Github size={16} />
+            </motion.a>
           </div>
         </motion.div>
 
