@@ -258,6 +258,54 @@ export function HomePage({ onNavigate }: { onNavigate: (p: string) => void }) {
         </div>
       </section>
 
+      {/* CTA section */}
+      <section className="pb-20 px-5 md:px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="max-w-2xl mx-auto rounded-3xl text-center px-8 py-16"
+          style={{
+            background: "linear-gradient(135deg, rgba(124,58,237,0.12), rgba(34,211,238,0.08))",
+            border: `1px solid ${colors.border}`,
+          }}
+        >
+          <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: colors.text }}>
+            O'z loyihangizni boshlashga tayyormisiz?
+          </h2>
+          <p className="text-sm mb-8 max-w-md mx-auto" style={{ color: colors.textMuted }}>
+            Hozir ro'yxatdan o'ting va birinchi darsni bepul boshlang. Sizni kutayotgan 50+ soatlik kontent bilan tanishing.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <motion.button
+              whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(124,58,237,0.55)" }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => { window.dispatchEvent(new CustomEvent("open-auth")); }}
+              className="w-full sm:w-auto px-8 py-3.5 rounded-full text-base font-semibold text-white"
+              style={{
+                background: "linear-gradient(135deg, #5b21b6, #7c3aed)",
+                boxShadow: "0 0 24px rgba(124,58,237,0.4)",
+              }}
+            >
+              Bepul boshlash
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => onNavigate("kurslar")}
+              className="w-full sm:w-auto px-8 py-3.5 rounded-full text-base font-semibold"
+              style={{
+                background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
+                border: `1.5px solid ${colors.border}`,
+                color: colors.text,
+              }}
+            >
+              Kurslarni ko'rish
+            </motion.button>
+          </div>
+        </motion.div>
+      </section>
 
     </div>
   );
@@ -313,7 +361,7 @@ function ProjectCard({ project }: { project: typeof projects[0] }) {
             className="px-2.5 py-0.5 rounded text-xs font-bold tracking-widest"
             style={{ background: colors.surface3, color: colors.textMuted }}
           >
-            CLONE
+            Clone
           </span>
         </div>
       </div>

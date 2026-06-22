@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Suspense, lazy } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Toaster } from "sonner";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
@@ -6,12 +6,14 @@ import { AuthProvider } from "./context/AuthContext";
 import { EnrolledCoursesProvider } from "./context/EnrolledCoursesContext";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
-import { HomePage } from "./components/HomePage";
-import { KurslarPage } from "./components/KurslarPage";
-import { LoyihalarPage } from "./components/LoyihalarPage";
-import { ManbalarPage } from "./components/ManbalarPage";
-import { DashboardPage } from "./components/DashboardPage";
-import { BoglanishPage } from "./components/BoglanishPage";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+
+const HomePage = lazy(() => import("./components/HomePage").then(m => ({ default: m.HomePage })));
+const KurslarPage = lazy(() => import("./components/KurslarPage").then(m => ({ default: m.KurslarPage })));
+const LoyihalarPage = lazy(() => import("./components/LoyihalarPage").then(m => ({ default: m.LoyihalarPage })));
+const ManbalarPage = lazy(() => import("./components/ManbalarPage").then(m => ({ default: m.ManbalarPage })));
+const DashboardPage = lazy(() => import("./components/DashboardPage").then(m => ({ default: m.DashboardPage })));
+const BoglanishPage = lazy(() => import("./components/BoglanishPage").then(m => ({ default: m.BoglanishPage })));
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
@@ -61,17 +63,19 @@ function AppInner() {
       />
       {!isDashboard && <Navbar currentPage={page} onNavigate={handleNavigate} />}
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={page}
-          variants={pageVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-        >
-          {renderPage()}
-        </motion.div>
-      </AnimatePresence>
+      <Suspense fallback={<div className="flex items-center justify-center py-32" style={{ color: colors.textMuted }}>Yuklanmoqda...</div>}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={page}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            {renderPage()}
+          </motion.div>
+        </AnimatePresence>
+      </Suspense>
 
       {!isDashboard && <Footer onNavigate={handleNavigate} />}
     </div>
@@ -81,11 +85,13 @@ function AppInner() {
 export default function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <EnrolledCoursesProvider>
-          <AppInner />
-        </EnrolledCoursesProvider>
-      </AuthProvider>
+      <ErrorBoundary>
+        <AuthProvider>
+          <EnrolledCoursesProvider>
+            <AppInner />
+          </EnrolledCoursesProvider>
+        </AuthProvider>
+      </ErrorBoundary>
     </ThemeProvider>
   );
 }

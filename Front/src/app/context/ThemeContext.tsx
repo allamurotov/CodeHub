@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export type Theme = "dark" | "light";
 
@@ -55,8 +55,25 @@ const ThemeContext = createContext<ThemeContextValue>({
   isDark: true,
 });
 
+const THEME_KEY = "codehub-theme";
+
+function getInitialTheme(): Theme {
+  if (typeof window !== "undefined") {
+    const stored = localStorage.getItem(THEME_KEY);
+    if (stored === "light" || stored === "dark") return stored;
+    if (window.matchMedia("(prefers-color-scheme: light)").matches) return "light";
+  }
+  return "dark";
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
+
+  useEffect(() => {
+    localStorage.setItem(THEME_KEY, theme);
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
+
   const toggle = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
   const colors = theme === "dark" ? dark : light;
   return (

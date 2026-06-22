@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Github } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
@@ -18,6 +18,12 @@ export function LoginModal({ onClose }: LoginModalProps) {
   const [step, setStep] = useState<"email" | "password">("email");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
 
   const handleSubmit = async () => {
     if (step === "email") {
@@ -87,6 +93,9 @@ export function LoginModal({ onClose }: LoginModalProps) {
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="auth-modal-title"
         initial={{ scale: 0.88, opacity: 0, y: 30 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.88, opacity: 0, y: 30 }}
@@ -115,7 +124,7 @@ export function LoginModal({ onClose }: LoginModalProps) {
           transition={{ delay: 0.1 }}
           className="text-center mb-6"
         >
-          <h2 className="text-2xl font-bold mb-1" style={{ color: colors.text }}>
+          <h2 id="auth-modal-title" className="text-2xl font-bold mb-1" style={{ color: colors.text }}>
             {mode === "login" ? "Sign in to CodeHub" : "Create an account"}
           </h2>
           <p className="text-sm" style={{ color: colors.textMuted }}>
@@ -144,6 +153,7 @@ export function LoginModal({ onClose }: LoginModalProps) {
                 border: `1px solid ${colors.border}`,
                 color: colors.text,
               }}
+              aria-label={`${btn.label} orqali kirish`}
             >
               {btn.icon}
               {btn.label}

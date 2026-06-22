@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://code-hub-tau.vercel.app/sitemap.xml

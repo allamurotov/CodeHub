@@ -30,7 +30,7 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -50,6 +50,12 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
     return () => window.removeEventListener("open-auth", handler);
   }, []);
 
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") { setShowDropdown(false); setShowMobileMenu(false); } };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
   // Close mobile menu on navigate
   const navigate = (p: string) => {
     onNavigate(p);
@@ -59,6 +65,8 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
   return (
     <>
       <motion.nav
+        role="navigation"
+        aria-label="Asosiy navigatsiya"
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -98,7 +106,7 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
 
           {/* Desktop nav links */}
           <div className="hidden md:flex items-center gap-5">
-            {navLinks.slice(0, 3).map((item) => (
+            {navLinks.map((item) => (
               <motion.button
                 key={item.id}
                 onClick={() => navigate(item.id)}
@@ -130,6 +138,7 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
               whileTap={{ scale: 0.9 }}
               className="w-8 h-8 flex items-center justify-center rounded-full flex-shrink-0"
               style={{ color: colors.textMuted }}
+              aria-label={`${isDark ? "Yorug'q" : "Qorong'u"} rejimga o'tish`}
             >
               <AnimatePresence mode="wait">
                 <motion.span
@@ -257,6 +266,8 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
                 border: `1px solid ${colors.border}`,
                 color: colors.text,
               }}
+              aria-label="Menyu"
+              aria-expanded={showMobileMenu}
             >
               <AnimatePresence mode="wait">
                 <motion.span
