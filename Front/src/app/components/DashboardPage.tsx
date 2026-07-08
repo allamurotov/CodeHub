@@ -1,12 +1,23 @@
-import { LayoutDashboard, BookOpen, FolderKanban, Database, MessageCircle, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, BookOpen, FolderKanban, Database, MessageCircle, LogOut, Menu, X, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
-import { useEnrolledCourses } from "../context/EnrolledCoursesContext";
+import { api } from "../lib/api";
+import { getCourseVisual } from "../lib/courseVisuals";
 
 interface DashboardPageProps {
-  onNavigate: (p: string) => void;
+  onNavigate: (p: string, data?: unknown) => void;
+}
+
+interface MyCourse {
+  id: string;
+  title: string;
+  coverImage: string | null;
+  totalLessons: number;
+  completedLessons: number;
+  progress: number;
 }
 
 const sidebarLinks = [
@@ -20,8 +31,19 @@ const sidebarLinks = [
 export function DashboardPage({ onNavigate }: DashboardPageProps) {
   const { colors, isDark } = useTheme();
   const { user, logout } = useAuth();
-  const { courses } = useEnrolledCourses();
+  const [courses, setCourses] = useState<MyCourse[]>([]);
+  const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    api
+      .get<{ courses: MyCourse[] }>("/courses/my")
+      .then((res) => res.data && setCourses(res.data.courses))
+      .catch(() => toast.error("Kurslaringizni yuklab bo'lmadi"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const isAdmin = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
 
   const sidebarBg = isDark ? "#0e0e14" : "#f0f0f8";
   const activeBg = isDark ? "rgba(124,58,237,0.15)" : "rgba(124,58,237,0.1)";
@@ -57,6 +79,17 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
             {label}
           </motion.button>
         ))}
+        {isAdmin && (
+          <motion.button
+            onClick={() => { onNavigate("admin"); setSidebarOpen(false); }}
+            whileHover={{ x: 2 }}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left"
+            style={{ color: "#a78bfa" }}
+          >
+            <ShieldCheck size={16} />
+            Admin panel
+          </motion.button>
+        )}
       </nav>
 
       <motion.button
@@ -158,7 +191,9 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
 
         {/* Course cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-          {courses.length === 0 && (
+          {loading ? (
+            <p className="col-span-full text-sm text-center py-16" style={{ color: colors.textMuted }}>Yuklanmoqda...</p>
+          ) : courses.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -178,21 +213,28 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                 Kurslarni ko'rish →
               </motion.button>
             </motion.div>
-          )}
-          {courses.map((course, i) => (
+          ) : courses.map((course, i) => {
+            const visual = getCourseVisual(course.title);
+            return (
             <motion.div
-              key={course.name}
+              key={course.id}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1, duration: 0.5 }}
               whileHover={{ y: -4, boxShadow: isDark ? "0 16px 40px rgba(0,0,0,0.5)" : "0 16px 40px rgba(0,0,0,0.1)" }}
+              onClick={() => onNavigate("kurs-detail", course.id)}
               className="rounded-2xl overflow-hidden cursor-pointer"
               style={{ background: colors.surface, border: `1px solid ${colors.border}` }}
             >
               <div
-                className="relative flex items-center justify-center"
-                style={{ height: 130, background: course.bg }}
+                className="relative flex items-center justify-center overflow-hidden"
+                style={{ height: 130, background: course.coverImage ? undefined : visual.gradient }}
               >
+                {course.coverImage ? (
+                  <img src={course.coverImage} alt={course.title} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="font-black text-2xl text-white select-none">{visual.text}</span>
+                )}
                 <div className="absolute top-3 left-3">
                   <span
                     className="px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1"
@@ -201,20 +243,11 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                     ⊙ Courses
                   </span>
                 </div>
-                <div
-                  className="w-16 h-16 rounded-xl flex items-center justify-center text-white font-black text-2xl"
-                  style={{
-                    background: course.color,
-                    color: course.color === "#ffffff" ? "#000" : "white",
-                  }}
-                >
-                  {course.label}
-                </div>
               </div>
 
               <div className="p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold" style={{ color: colors.text }}>{course.name}</h3>
+                  <h3 className="font-semibold" style={{ color: colors.text }}>{course.title}</h3>
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     className="w-7 h-7 rounded-lg flex items-center justify-center text-purple-400"
@@ -225,7 +258,7 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span style={{ color: colors.textMuted }}>Bajarildi</span>
+                    <span style={{ color: colors.textMuted }}>{course.completedLessons}/{course.totalLessons} dars bajarildi</span>
                     <span className="font-semibold" style={{ color: colors.text }}>{course.progress}%</span>
                   </div>
                   <div className="w-full rounded-full h-1.5" style={{ background: colors.surface2 }}>
@@ -240,9 +273,9 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                 </div>
               </div>
             </motion.div>
-          ))}
+          );})}
 
-          {courses.length > 0 && (
+          {!loading && courses.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}

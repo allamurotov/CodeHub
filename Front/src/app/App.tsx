@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { Toaster } from "sonner";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
-import { EnrolledCoursesProvider } from "./context/EnrolledCoursesContext";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -14,6 +13,8 @@ const LoyihalarPage = lazy(() => import("./components/LoyihalarPage").then(m => 
 const ManbalarPage = lazy(() => import("./components/ManbalarPage").then(m => ({ default: m.ManbalarPage })));
 const DashboardPage = lazy(() => import("./components/DashboardPage").then(m => ({ default: m.DashboardPage })));
 const BoglanishPage = lazy(() => import("./components/BoglanishPage").then(m => ({ default: m.BoglanishPage })));
+const AdminPage = lazy(() => import("./components/AdminPage").then(m => ({ default: m.AdminPage })));
+const CourseDetailPage = lazy(() => import("./components/CourseDetailPage").then(m => ({ default: m.CourseDetailPage })));
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
@@ -23,21 +24,25 @@ const pageVariants = {
 
 function AppInner() {
   const [page, setPage] = useState("home");
+  const [pageData, setPageData] = useState<unknown>(null);
   const { colors } = useTheme();
 
-  const handleNavigate = (p: string) => {
+  const handleNavigate = (p: string, data?: unknown) => {
     setPage(p);
+    setPageData(data ?? null);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const isDashboard = page === "dashboard";
+  const isDashboard = page === "dashboard" || page === "admin";
 
   const renderPage = () => {
     switch (page) {
       case "kurslar": return <KurslarPage onNavigate={handleNavigate} />;
+      case "kurs-detail": return <CourseDetailPage courseId={pageData as string} onNavigate={handleNavigate} />;
       case "loyihalar": return <LoyihalarPage />;
       case "manbalar": return <ManbalarPage />;
       case "dashboard": return <DashboardPage onNavigate={handleNavigate} />;
+      case "admin": return <AdminPage onNavigate={handleNavigate} />;
       case "boglanish": return <BoglanishPage />;
       default: return <HomePage onNavigate={handleNavigate} />;
     }
@@ -87,9 +92,7 @@ export default function App() {
     <ThemeProvider>
       <ErrorBoundary>
         <AuthProvider>
-          <EnrolledCoursesProvider>
-            <AppInner />
-          </EnrolledCoursesProvider>
+          <AppInner />
         </AuthProvider>
       </ErrorBoundary>
     </ThemeProvider>

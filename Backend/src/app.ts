@@ -1,4 +1,5 @@
 import express from "express";
+import path from "path";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -29,6 +30,9 @@ export const createApp = () => {
 
   // Passport
   app.use(passport.initialize());
+
+  // Uploaded files (course covers, lesson videos, materials)
+  app.use("/uploads", express.static(path.resolve(__dirname, "../uploads")));
 
   // API routes
   app.use("/api/v1", routes);

@@ -25,7 +25,7 @@ export const authService = {
         email: input.email,
         password: hashedPassword,
       },
-      select: { id: true, name: true, email: true, role: true, createdAt: true },
+      select: { id: true, name: true, email: true, role: true, permissions: true, createdAt: true },
     });
 
     const tokens = generateTokens({ userId: user.id, email: user.email!, role: user.role });
@@ -148,7 +148,7 @@ export const authService = {
   async getProfile(userId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, name: true, email: true, avatar: true, role: true, isVerified: true, createdAt: true },
+      select: { id: true, name: true, email: true, avatar: true, role: true, permissions: true, isVerified: true, createdAt: true },
     });
     if (!user) throw new UnauthorizedError("User not found");
     return user;

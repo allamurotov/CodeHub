@@ -40,8 +40,9 @@ async function request<T>(
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
   const { accessToken } = getTokens();
+  const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...(options.headers as Record<string, string>),
   };
   if (accessToken) {
@@ -94,10 +95,19 @@ async function request<T>(
   return json;
 }
 
+function toBody(body?: unknown): BodyInit | undefined {
+  if (body === undefined) return undefined;
+  if (typeof FormData !== "undefined" && body instanceof FormData) return body;
+  return JSON.stringify(body);
+}
+
 export const api = {
   get: <T>(endpoint: string) => request<T>(endpoint),
-  post: <T>(endpoint: string, body?: unknown) =>
-    request<T>(endpoint, { method: "POST", body: body ? JSON.stringify(body) : undefined }),
+  post: <T>(endpoint: string, body?: unknown) => request<T>(endpoint, { method: "POST", body: toBody(body) }),
+  patch: <T>(endpoint: string, body?: unknown) => request<T>(endpoint, { method: "PATCH", body: toBody(body) }),
+  delete: <T>(endpoint: string) => request<T>(endpoint, { method: "DELETE" }),
+  upload: <T>(endpoint: string, formData: FormData, method: "POST" | "PATCH" = "POST") =>
+    request<T>(endpoint, { method, body: formData }),
   setTokens,
   clearTokens,
   getTokens,

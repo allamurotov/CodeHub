@@ -2,3 +2,13 @@ node_modules/
 dist/
 .env
 *.log
+uploads/*
+!uploads/covers
+!uploads/videos
+!uploads/materials
+uploads/covers/*
+uploads/videos/*
+uploads/materials/*
+!uploads/covers/.gitkeep
+!uploads/videos/.gitkeep
+!uploads/materials/.gitkeep

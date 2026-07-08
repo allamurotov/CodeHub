@@ -1,48 +1,48 @@
-import { Clock, BookOpen, ArrowUpRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { BookOpen, ArrowUpRight } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
-import { useEnrolledCourses } from "../context/EnrolledCoursesContext";
+import { api } from "../lib/api";
+import { getCourseVisual, CourseVisual } from "../lib/courseVisuals";
 
-const courses = [
-  { name: "React.js", isNew: false, hours: 32, lessons: 24 },
-  { name: "Vue.js", isNew: true, hours: 28, lessons: 20 },
-  { name: "Angular", isNew: false, hours: 30, lessons: 22 },
-  { name: "Next.js", isNew: true, hours: 36, lessons: 28 },
-  { name: "Node.js", isNew: true, hours: 24, lessons: 18 },
-  { name: "TypeScript", isNew: false, hours: 20, lessons: 16 },
-  { name: "React Native", isNew: true, hours: 40, lessons: 32 },
-  { name: "NestJS", isNew: false, hours: 26, lessons: 20 },
-  { name: "MongoDB", isNew: false, hours: 18, lessons: 14 },
-];
+interface ApiCourse {
+  id: string;
+  title: string;
+  description: string;
+  coverImage: string | null;
+  createdAt: string;
+  _count: { lessons: number };
+}
 
-const courseVisuals: Record<string, { text: string; gradient: string; shadow: string; accent: string }> = {
-  "React.js": { text: "React", gradient: "linear-gradient(135deg, #61dafb, #20232a)", shadow: "0 8px 32px rgba(97,218,251,0.3)", accent: "#61dafb" },
-  "Vue.js": { text: "Vue", gradient: "linear-gradient(135deg, #42b883, #35495e)", shadow: "0 8px 32px rgba(66,184,131,0.3)", accent: "#42b883" },
-  "Angular": { text: "Angular", gradient: "linear-gradient(135deg, #dd0031, #c3002f)", shadow: "0 8px 32px rgba(221,0,49,0.3)", accent: "#dd0031" },
-  "Next.js": { text: "Next", gradient: "linear-gradient(135deg, #ffffff, #000000)", shadow: "0 8px 32px rgba(255,255,255,0.15)", accent: "#ffffff" },
-  "Node.js": { text: "Node", gradient: "linear-gradient(135deg, #539e43, #333333)", shadow: "0 8px 32px rgba(83,158,67,0.3)", accent: "#539e43" },
-  "TypeScript": { text: "TypeScript", gradient: "linear-gradient(135deg, #3178c6, #235a97)", shadow: "0 8px 32px rgba(49,120,198,0.3)", accent: "#3178c6" },
-  "React Native": { text: "RN", gradient: "linear-gradient(135deg, #61dafb, #7c3aed)", shadow: "0 8px 32px rgba(97,218,251,0.3)", accent: "#61dafb" },
-  "NestJS": { text: "Nest", gradient: "linear-gradient(135deg, #e0234e, #111111)", shadow: "0 8px 32px rgba(224,35,78,0.3)", accent: "#e0234e" },
-  "MongoDB": { text: "MongoDB", gradient: "linear-gradient(135deg, #00ed64, #10a546)", shadow: "0 8px 32px rgba(0,237,100,0.3)", accent: "#00ed64" },
-};
+function isNewCourse(createdAt: string) {
+  const days = (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24);
+  return days <= 14;
+}
 
 export function KurslarPage({ onNavigate }: { onNavigate?: (p: string, data?: unknown) => void }) {
-  const { colors, isDark } = useTheme();
-  const { addCourse } = useEnrolledCourses();
+  const { colors } = useTheme();
   const { isLoggedIn } = useAuth();
+  const [courses, setCourses] = useState<ApiCourse[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleCourseClick = (courseName: string) => {
+  useEffect(() => {
+    api
+      .get<{ courses: ApiCourse[] }>("/courses")
+      .then((res) => res.data && setCourses(res.data.courses))
+      .catch(() => toast.error("Kurslarni yuklab bo'lmadi"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleCourseClick = (course: ApiCourse) => {
     if (!isLoggedIn) {
       toast("Diqqat! Ro'yxatdan o'ting", {
         style: { background: "#2e0f0f", border: "1px solid rgba(248,113,113,0.3)", color: "#fca5a5", borderRadius: "12px", padding: "12px 24px", fontSize: "14px", fontWeight: 600, boxShadow: "0 8px 32px rgba(0,0,0,0.4)" },
       });
       return;
     }
-    addCourse(courseName);
-    onNavigate?.("dashboard");
+    onNavigate?.("kurs-detail", course.id);
   };
 
   return (
@@ -101,23 +101,29 @@ export function KurslarPage({ onNavigate }: { onNavigate?: (p: string, data?: un
           </motion.p>
         </div>
 
-        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {courses.map((course, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, delay: (i % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
-            >
+        {loading ? (
+          <p className="text-center text-sm" style={{ color: colors.textMuted }}>Yuklanmoqda...</p>
+        ) : courses.length === 0 ? (
+          <p className="text-center text-sm" style={{ color: colors.textMuted }}>Hozircha kurslar mavjud emas.</p>
+        ) : (
+          <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {courses.map((course, i) => (
+              <motion.div
+                key={course.id}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: (i % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
+              >
                 <CourseCard
                   course={course}
-                  visual={courseVisuals[course.name]}
-                  onClick={() => handleCourseClick(course.name)}
+                  visual={getCourseVisual(course.title)}
+                  onClick={() => handleCourseClick(course)}
                 />
-            </motion.div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
@@ -128,11 +134,12 @@ function CourseCard({
   visual,
   onClick,
 }: {
-  course: typeof courses[0];
-  visual?: { text: string; gradient: string; shadow: string; accent: string };
+  course: ApiCourse;
+  visual: CourseVisual;
   onClick?: () => void;
 }) {
   const { colors, isDark } = useTheme();
+  const v = visual;
 
   return (
     <motion.div
@@ -152,7 +159,7 @@ function CourseCard({
         }}
       />
 
-      {course.isNew && (
+      {isNewCourse(course.createdAt) && (
         <span
           className="absolute top-4 right-4 px-2 py-0.5 rounded text-xs font-semibold"
           style={{ background: "rgba(124,58,237,0.25)", color: "#c4b5fd", border: "1px solid rgba(124,58,237,0.4)" }}
@@ -165,29 +172,32 @@ function CourseCard({
         className="flex items-center justify-center rounded-xl mb-5 relative overflow-hidden"
         style={{
           height: 120,
-          background: visual?.gradient || (isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)"),
-          boxShadow: visual?.shadow || "none",
+          background: course.coverImage ? undefined : v.gradient,
+          boxShadow: v.shadow,
         }}
       >
-        <span
-          className="font-black select-none"
-          style={{
-            fontSize: "clamp(2rem, 6vw, 2.8rem)",
-            color: "rgba(255,255,255,0.92)",
-            letterSpacing: "-0.03em",
-            textShadow: "0 2px 20px rgba(0,0,0,0.3)",
-          }}
-        >
-          {visual?.text || course.name}
-        </span>
+        {course.coverImage ? (
+          <img src={course.coverImage} alt={course.title} className="w-full h-full object-cover" />
+        ) : (
+          <span
+            className="font-black select-none"
+            style={{
+              fontSize: "clamp(2rem, 6vw, 2.8rem)",
+              color: "rgba(255,255,255,0.92)",
+              letterSpacing: "-0.03em",
+              textShadow: "0 2px 20px rgba(0,0,0,0.3)",
+            }}
+          >
+            {v.text}
+          </span>
+        )}
       </div>
 
       <div className="flex items-center gap-4 text-xs mb-3" style={{ color: colors.textMuted }}>
-        <span className="flex items-center gap-1"><Clock size={12} />{course.hours} soat</span>
-        <span className="flex items-center gap-1"><BookOpen size={12} />{course.lessons} dars</span>
+        <span className="flex items-center gap-1"><BookOpen size={12} />{course._count.lessons} dars</span>
       </div>
 
-      <h3 className="font-semibold mb-4" style={{ color: colors.text }}>{course.name}</h3>
+      <h3 className="font-semibold mb-4" style={{ color: colors.text }}>{course.title}</h3>
 
       <motion.button
         className="flex items-center gap-2 text-sm transition-colors"
@@ -206,5 +216,3 @@ function CourseCard({
     </motion.div>
   );
 }
-
-

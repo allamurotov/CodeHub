@@ -1,12 +1,15 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { api } from "../lib/api";
 
+export type Role = "USER" | "ADMIN" | "SUPER_ADMIN";
+
 interface User {
   id: string;
   name: string;
   email: string;
   avatar?: string;
-  role: string;
+  role: Role;
+  permissions: string[];
 }
 
 interface AuthContextValue {
@@ -43,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const tokens = api.getTokens();
     if (tokens.accessToken) {
-      api.get<{ id: string; name: string; email: string; avatar?: string; role: string }>("/auth/profile")
+      api.get<User>("/auth/profile")
         .then((res) => {
           if (res.data) setUser(res.data);
         })
@@ -66,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const handler = (e: MessageEvent) => {
       if (e.data?.type === "OAUTH_SUCCESS") {
         api.setTokens(e.data.accessToken, e.data.refreshToken);
-        api.get<{ id: string; name: string; email: string; avatar?: string; role: string }>("/auth/profile")
+        api.get<User>("/auth/profile")
           .then((res) => {
             if (res.data) setUser(res.data);
           });
