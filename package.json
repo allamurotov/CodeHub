@@ -2,6 +2,10 @@
   "name": "codehub",
   "private": true,
   "version": "1.0.0",
+  "workspaces": [
+    "Front",
+    "Backend"
+  ],
   "scripts": {
     "dev": "npm run dev --prefix Front",
     "build": "npm run build --prefix Front",
