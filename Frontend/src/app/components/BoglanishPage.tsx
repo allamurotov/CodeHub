@@ -1,7 +1,7 @@
 import { Github, Layers, ExternalLink } from "lucide-react";
 import { motion } from "motion/react";
 import { useTheme } from "../context/ThemeContext";
-import sardorImage from "@/imports/image.jpg";
+import sardorImage from "@/assets/images/image.jpg";
 
 const techStack = ["React", "Next.js", "Node.js", "TypeScript", "TailwindCSS", "PostgresQL", "Docker"];
 
