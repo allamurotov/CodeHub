@@ -1,0 +1,7 @@
+/Backend/
+.env
+/dist/
+/src/
+node_modules/
+/git
+.claude/
