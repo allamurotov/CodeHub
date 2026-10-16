@@ -30,3 +30,11 @@ Thumbs.db
 test-results/
 playwright-report/
 blob-report/
+
+# Backend uploads
+Backend/uploads/covers/*
+!Backend/uploads/covers/.gitkeep
+Backend/uploads/videos/*
+!Backend/uploads/videos/.gitkeep
+Backend/uploads/materials/*
+!Backend/uploads/materials/.gitkeep

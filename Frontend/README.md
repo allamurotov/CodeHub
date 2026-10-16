@@ -1,11 +1,25 @@
+# CodeHub - Frontend
 
-  # CodeHub
+CodeHub ta'lim platformasining foydalanuvchi va admin interfeysi (React, Vite, TypeScript, TailwindCSS).
 
-  This is a code bundle for CodeHub. The original project is available at https://www.figma.com/design/dCGTZ5vlpyAvB0GlkyPiI4/CodeHub.
+## Ishga tushirish
 
-  ## Running the code
+1. Bog'liqliklarni o'rnatish:
+```bash
+npm install
+```
 
-  Run `npm i` to install the dependencies.
+2. Loyihani rivojlantirish (dev) rejimida ishga tushirish:
+```bash
+npm run dev
+```
 
-  Run `npm run dev` to start the development server.
-  
+3. Loyihani ishlab chiqarish (production build) uchun yig'ish:
+```bash
+npm run build
+```
+
+4. E2E testlarni ishga tushirish:
+```bash
+npm run test:e2e
+```
