@@ -1,0 +1,10 @@
+node_modules/
+dist/
+uploads/covers/*
+!uploads/covers/.gitkeep
+uploads/videos/*
+!uploads/videos/.gitkeep
+uploads/materials/*
+!uploads/materials/.gitkeep
+.env
+*.log
