@@ -43,3 +43,4 @@ Frontend `http://localhost:5173` manzilida ochiladi va API so'rovlarni avtomatik
   - Email: `student@codehub.uz`
   - Parol: `student123`
 <!-- sync-marker-step-24-1 -->
+<!-- sync-marker-step-24-2 -->
