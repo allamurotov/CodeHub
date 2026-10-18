@@ -1,4 +1,4 @@
-import { Github, Layers, ExternalLink } from "lucide-react";
+import { Github, Layers, ExternalLink, Send } from "lucide-react";
 import { motion } from "motion/react";
 import { useTheme } from "../context/ThemeContext";
 import sardorImage from "@/assets/images/image.jpg";
