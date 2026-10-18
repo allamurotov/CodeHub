@@ -56,3 +56,4 @@ Frontend `http://localhost:5173` manzilida ochiladi va API so'rovlarni avtomatik
 <!-- sync-marker-step-24-12 -->
 <!-- sync-marker-step-24-13 -->
 <!-- sync-marker-step-24-14 -->
+<!-- sync-marker-step-24-15 -->
