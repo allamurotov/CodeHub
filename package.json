@@ -12,6 +12,9 @@
     "shared"
   ],
   "scripts": {
-    "build:shared": "npm --workspace=shared run build"
+    "build:shared": "npm --workspace=shared run build",
+    "build:user-backend": "npm run build:shared && npm --workspace=user-panel-backend run build",
+    "build:admin-backend": "npm run build:shared && npm --workspace=admin-panel-backend run build",
+    "build:backends": "npm run build:shared && npm --workspace=user-panel-backend run build && npm --workspace=admin-panel-backend run build"
   }
 }
