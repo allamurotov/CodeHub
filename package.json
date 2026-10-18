@@ -1,0 +1,17 @@
+{
+  "name": "codehub-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "landing-page/frontend",
+    "user-panel/frontend",
+    "user-panel/backend",
+    "admin-panel/frontend",
+    "admin-panel/backend",
+    "shared"
+  ],
+  "scripts": {
+    "build:shared": "npm --workspace=shared run build"
+  }
+}
