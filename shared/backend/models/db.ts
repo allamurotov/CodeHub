@@ -4,22 +4,26 @@ import bcrypt from 'bcryptjs';
 import { DatabaseSchema, User, Course, Lesson, Material } from '../../types/index.js';
 
 function resolveDbFilePath(): string {
-  if (process.env.DB_FILE) {
-    return path.resolve(process.env.DB_FILE);
+  // 1. Explicit environment variable DB_PATH or DB_FILE
+  const envPath = process.env.DB_PATH || process.env.DB_FILE;
+  if (envPath) {
+    return path.resolve(envPath);
   }
-  // Check process.cwd()/data/db.json
-  const cwdPath = path.resolve(process.cwd(), 'data/db.json');
-  if (fs.existsSync(cwdPath)) return cwdPath;
 
-  // Check 3 levels up
-  const rel3 = path.resolve(__dirname, '../../../data/db.json');
-  if (fs.existsSync(rel3)) return rel3;
+  // 2. Monorepo root discovery starting from process.cwd()
+  let currentDir = process.cwd();
+  for (let i = 0; i < 5; i++) {
+    const candidate = path.join(currentDir, 'data', 'db.json');
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+    const parent = path.dirname(currentDir);
+    if (parent === currentDir) break;
+    currentDir = parent;
+  }
 
-  // Check 4 levels up
-  const rel4 = path.resolve(__dirname, '../../../../data/db.json');
-  if (fs.existsSync(rel4)) return rel4;
-
-  return cwdPath;
+  // 3. Fallback to default in process.cwd()
+  return path.resolve(process.cwd(), 'data', 'db.json');
 }
 
 const DB_FILE = resolveDbFilePath();
