@@ -31,6 +31,11 @@ test-results/
 playwright-report/
 blob-report/
 
+# Database & data
+Backend/data/db.json
+data/db.json
+data/*.sqlite*
+
 # Backend uploads
 Backend/uploads/covers/*
 !Backend/uploads/covers/.gitkeep
@@ -38,3 +43,5 @@ Backend/uploads/videos/*
 !Backend/uploads/videos/.gitkeep
 Backend/uploads/materials/*
 !Backend/uploads/materials/.gitkeep
+uploads/*
+!uploads/**/.gitkeep
