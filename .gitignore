@@ -43,5 +43,6 @@ Backend/uploads/videos/*
 !Backend/uploads/videos/.gitkeep
 Backend/uploads/materials/*
 !Backend/uploads/materials/.gitkeep
-uploads/*
+uploads/**
+!uploads/**/
 !uploads/**/.gitkeep
